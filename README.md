@@ -219,7 +219,7 @@ cd PatchWeb-SQL-XSS-Injections
 
 Elle permet de :
 
-* générer les dossiers `nodes_modules/` avec les paquets nécessaires pour le projet
+* générer les répertoires `nodes_modules/` qui stockent toutes les dépendances et librairies définies dans les fichiers "package.json" nécessaire pour faire tourner les projets backend et frotend respectivement
 * éviter les erreurs `npm ci` lors des builds Docker
 * garantir la reproductibilité
 
