@@ -1,0 +1,51 @@
+# docker/docker-compose.yml
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    env_file:
+      - ../.env
+    container_name: ${BACKEND_CONTAINER}
+    ports:
+      - "${BACKEND_PORT}:8000"
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    env_file:
+      - ../.env
+    container_name: ${FRONTEND_CONTAINER}
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    depends_on:
+      - backend
+    networks:
+      - app_net
+    restart: unless-stopped
+
+  tests:
+    build:
+      context: ..
+      dockerfile: docker/tests.Dockerfile
+    env_file:
+      - ../.env
+    container_name: ${TESTS_CONTAINER}
+    environment:
+      TEST_API_URL: http://backend:8000
+      TEST_FRONT_URL: http://frontend:3000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app_net
+    tty: true
+
+networks:
+  app_net:
+    driver: bridge

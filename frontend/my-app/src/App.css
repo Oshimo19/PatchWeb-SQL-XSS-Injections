@@ -36,3 +36,29 @@
     transform: rotate(360deg);
   }
 }
+
+.box-blue {
+  border: 2px solid #61dafb;
+  padding: 1rem;
+  margin-bottom: 3rem;
+  border-radius: 8px;
+}
+
+.box-red {
+  border: 2px solid #ff6b6b;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.comment-block {
+  background: #282c34;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #444;
+}
+
+.msg-error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+}

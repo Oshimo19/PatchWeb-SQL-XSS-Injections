@@ -1,115 +1,77 @@
-const express = require('express');
-const axios = require('axios');
-const sqlite3 = require('sqlite3').verbose();
-const cors = require('cors');
+// backend/server.js
 
+require("dotenv").config();
+
+const express = require("express");
 const app = express();
-const port = 8000;
-app.use(express.text());
-app.use(cors());
 
-const db = new sqlite3.Database('./database.db', (err) => {
-  if (err) console.error(err.message);
-  else console.log('Connected to SQLite database.');
+const { PORT } = require("./config/env");
+const sequelize = require("./config/database");
+const applySecurityHeaders = require("./config/security-headers");
+const corsFactory = require("./config/cors");
+const onlyJson = require("./middlewares/only-json");
+const routes = require("./routes");
+
+// ========================
+// MIDDLEWARES DE SECURITE
+// ========================
+
+// En-têtes HTTP stricts (OWASP)
+applySecurityHeaders(app);
+
+// Refuser tout autre format que JSON pour les méthodes avec corps
+app.use((req, res, next) => {
+  const methodsWithBody = ["POST", "PUT", "PATCH"];
+  if (methodsWithBody.includes(req.method)) {
+    return onlyJson(req, res, next);
+  }
+  next();
 });
 
-db.run(`CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  password TEXT NOT NULL
-)`);
+// Parsing JSON (après contrôle du Content-Type)
+app.use(express.json({ limit: "100kb" }));
 
-async function insertRandomUsers() {
+// CORS minimal et restreint
+app.use(corsFactory());
+
+// Routes de l'application
+app.use(routes);
+
+// ========================
+// GESTION DES ROUTES INEXISTANTES (404)
+// ========================
+app.use((req, res) => {
+  return res.status(404).json({
+    error: "Ressource introuvable.",
+  });
+});
+
+// ========================
+// DEMARRAGE SERVEUR
+// ========================
+
+async function start() {
   try {
-    const urls = [1, 2, 3].map(() => axios.get('https://randomuser.me/api/'));
-    const results = await Promise.all(urls);
-    const users = results.map(r => r.data.results[0]);
+    // Vérification de la connexion DB
+    await sequelize.authenticate();
 
-    users.forEach(u => {
-        const fullName = `${u.name.first} ${u.name.last}`;
-        const password = u.login.password;
+    // Synchronisation ORM → création des tables
+    await sequelize.sync();
 
-        db.run(
-        `INSERT INTO users (name, password) VALUES ('${fullName}', '${password}')`,
-        (err) => {
-            if (err) console.error(err.message);
-        }
-        );
-    });
-    console.log('Inserted 3 users into database.');
+    // Lancer le serveur uniquement si ce fichier est exécuté directement
+    if (require.main === module) {
+      app.listen(PORT, () => {
+        console.log(`Serveur démarré sur le port ${PORT}`);
+      });
+    }
+
   } catch (err) {
-    console.error('Error inserting users:', err.message);
+    // Message générique (aucune info interne)
+    console.error("Erreur lors du démarrage du serveur.");
+    process.exit(1);
   }
 }
 
-app.get('/populate', async (req, res) => {
-  await insertRandomUsers();
-  res.send('Inserted 3 users into database.');
-});
+start();
 
-app.post('/query', async (req, res) => {
-  db.run(req.body)
-  res.send('Inserted 3 users into database.');
-});
-
-app.get('/users', (req, res) => {
-  db.all('SELECT id FROM users', [], (err, rows) => {
-    if (err) {
-      console.error(err.message);
-      res.status(500).send('Database error');
-      return;
-    }
-    res.json(rows);
-  });
-});
-
-app.post('/user', (req, res) => {
-    console.log(req.body);
-    
-    db.all(
-        req.body,
-        [], 
-        (err, rows) => {
-            if (err) {
-                console.error('SQL Error:', err.message);
-                return res.status(500).json({ error: err.message });
-            }
-            console.log('Query results:', rows);
-            res.json(rows);
-        }
-    );
-});
-
-app.post('/comment', (req, res) => {
-  const comment = req.body; 
-  
-  db.all(
-    `INSERT INTO comments (content) VALUES (?)`,[comment] ,
-    (err) => {
-      if (err) {
-        console.error(err.message);
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({ success: true });
-    }
-  );
-});
-
-app.get('/comments', (req, res) => {
-  db.all('SELECT * FROM comments ORDER BY id DESC', [], (err, rows) => {
-    if (err) {
-      console.error(err.message);
-      return res.status(500).send('Database error');
-    }
-    res.json(rows);
-  });
-});
-
-db.run(`CREATE TABLE IF NOT EXISTS comments (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  content TEXT NOT NULL
-)`);
-
-app.listen(port, () => {
-  console.log(`App listening on port ${port}`);
-});
+module.exports = app;
