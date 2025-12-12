@@ -207,19 +207,19 @@ PatchWeb-SQL-XSS-Injections/
 ### 4.1 Clonage du dépôt
 
 ```bash
-git clone https://github.com/<ton-repo>/PatchWeb-SQL-XSS-Injections.git
+git clone https://github.com/Oshimo19/PatchWeb-SQL-XSS-Injections.git
 cd PatchWeb-SQL-XSS-Injections
 ```
 
 ---
 
-### 4.2 Installation des dépendances (obligatoire)
+### 4.2 Installation des dépendances NodeJS
 
 **Cette étape est nécessaire avant le lancement du projet**, même avec Docker.
 
 Elle permet de :
 
-* générer les répertoires `nodes_modules/` qui stockent toutes les dépendances et librairies définies dans les fichiers "package.json" nécessaire pour faire tourner les projets backend et frotend respectivement
+* générer les dossiers `node_modules/` dans `backend/` et `frontend/my-app/`, qui contiennent toutes les dépendances et bibliothèques indiquées dans les fichiers `package.json` de chaque projet, afin de pouvoir les exécuter.
 * éviter les erreurs `npm ci` lors des builds Docker
 * garantir la reproductibilité
 
@@ -417,7 +417,7 @@ Résultat attendu : Rejet avec un message d'erreur
 
 ---
 
-## 8. À propos de l’encodage HTML des noms
+## 8. À propos de l’encodage HTML des noms dans la base de données
 
 Exemples observés :
 
@@ -430,7 +430,7 @@ Name : Ceyhan G&uuml;m&uuml;&scedil;pala
 
 * Les données sont **encodées côté backend**
 * Le frontend n’interprète **aucun HTML**
-* Cela empêche toute type de XSS
+* Cela empêche les principaux types de XSS (DOM‑XSS, XSS réfléchies et XSS stockées)
 
 ➔ **La sécurité est priorisée sur l’affichage esthétique**
 
