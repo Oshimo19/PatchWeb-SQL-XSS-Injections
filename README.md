@@ -4,7 +4,7 @@
 
 ---
 
-## 0. Contexte du projet (important)
+## 0. Contexte du projet
 
 Ce projet est une **amélioration et une sécurisation** du dépôt initial suivant :
 
@@ -123,14 +123,6 @@ Pour atteindre les objectifs de sécurité et de robustesse, plusieurs améliora
 
 </div>
 
-Exemple de vulnérabilité critique dans le projet initial :
-
-```js
-db.run(req.body)
-```
-
-➔ **Exécution arbitraire de SQL fourni par l’utilisateur**
-
 ---
 
 ### Projet actuel (PatchWeb)
@@ -193,14 +185,15 @@ PatchWeb-SQL-XSS-Injections/
 
 ### Prérequis
 
-* Connexion Internet **obligatoire**
-  * Docker Hub
-  * npm
-  * API `randomuser.me`
-* Docker + Docker Compose
-* Git
-* Node.js (uniquement pour l’installation locale des dépendances)
-* Navigateur web
+* Une distribution Linux (Debian, Fedora, etc.)
+* Une connexion Internet
+* Docker Engine incluant Docker et Docker Compose
+  - https://docs.docker.com/engine/install
+* Node.js et npm  
+  - https://nodejs.org/en/download
+* Un accès à l’API `randomuser.me`
+* Git installé sur la machine
+* Un navigateur web (Firefox, Google Chrome, Opera, etc.)
 
 ---
 
@@ -343,9 +336,7 @@ Lors des tests via `curl`, certaines routes frontend peuvent répondre :
 You need to enable JavaScript to run this app.
 ```
 
-➔ **Ceci est normal pour une SPA React** et **ne constitue pas une vulnérabilité**.
-
-➔ **Des tests manuels sont obligatoires** (voir section suivante).
+➔ **Ceci est normal pour une Single Page Application (SPA) React et ne devient une vulnérabilité qu’après confirmation par vérification manuelle (voir section suivante).**
 
 ---
 
@@ -410,7 +401,7 @@ curl -X POST http://localhost:8000/populate \
 Dans le champ ID utilisateur :
 
 ```
-1 OR 1=1
+1' OR 1=1
 ```
 
 Résultat attendu : Rejet avec un message d'erreur
@@ -449,21 +440,21 @@ Il limite fortement les attaques les plus courantes, mais :
 
 * Encodage ciblé (< > " ') au lieu d’un encodage global
 * Décodage sécurisé côté frontend avec **DOMPurify**
-* Journalisation des tentatives d’attaque (OWASP Top 10 - A09)
+* Journalisation des tentatives d’attaque (OWASP Top 10 - A09:2021 Carence des systèmes de contrôle et de journalisation)
 * Rate limiting (éviter les attaques DoS / DDoS)
 * Tests SAST pour tester la sécurité du code via des outils comme SonarQube
 * Tests DAST pour tester la sécurité de l'application via des outils comme Burp DAST ou Qualys
 
 ---
 
-## 10. Couverture OWASP Top 10 (2021 / 2025)
+## 10. Couverture de OWASP Top 10:2021
 
 | Catégorie                       | Couverture                 |
 | ------------------------------- | -------------------------- |
 | A03 – Injection                 | ✅ Oui                      |
-| A04 – Insecure Design           | ✅ Oui                      |
-| A05 – Security Misconfiguration | ✅ Oui                      |
-| A09 – Logging                   | ❌ Non                      |
+| A04 – Conception non sécurisée  | ✅ Oui                      |
+| A05 – Mauvaise configuration de sécurité | ✅ Oui             |
+| A09 – Carence des systèmes de contrôle et de journalisation           | ❌ Non                      |
 | Autres                          | Hors périmètre |
 
 ---
@@ -475,7 +466,7 @@ Ce projet illustre :
 * Une **amélioration concrète** d’un projet volontairement vulnérable
 * Une **approche réaliste de sécurisation**
 * L’usage d’outils modernes (ORM, Docker, tests)
-* Une conformité partielle mais pertinente aux standards OWASP
+* Une conformité partielle aux standards OWASP
 
 ➔ **Il s’agit d’un projet de sécurisation pédagogique**, pas d’un produit prêt pour la production.
 
