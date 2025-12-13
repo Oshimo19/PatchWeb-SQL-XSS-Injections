@@ -499,8 +499,7 @@ Notre application **frontend n’est pas vulnérable** à la vulnérabilité Rea
 
 ---
 
-
-## 9. Limites connues et pistes d’amélioration
+## 10. Limites connues et pistes d’amélioration
 
 **Ce projet n’est pas sécurisé à 100 %**
 
@@ -520,7 +519,7 @@ Il limite fortement les attaques les plus courantes, mais :
 
 ---
 
-## 10. Couverture de OWASP Top 10:2021
+## 11. Couverture de OWASP Top 10:2021
 
 | Catégorie                       | Couverture                 |
 | ------------------------------- | -------------------------- |
@@ -532,7 +531,7 @@ Il limite fortement les attaques les plus courantes, mais :
 
 ---
 
-## 11. Conclusion
+## 12. Conclusion
 
 Ce projet illustre :
 
