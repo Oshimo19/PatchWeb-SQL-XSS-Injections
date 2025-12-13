@@ -262,7 +262,7 @@ Ouvrir le fichier `.env` et **remplacer les valeurs d’exemple** (notamment les
 docker compose --env-file .env -f docker/docker-compose.yml up -d --build
 ```
 
-Attendre que le backend soit **healthy**.
+Attendre que tous les services soient démarrés.
 
 ---
 
@@ -355,7 +355,7 @@ Cette étape est indispensable car :
 ### Requête d’initialisation
 
 ```bash
-curl -X POST http://localhost:8000/populate \
+curl -X POST http://localhost:<BACKEND_PORT>/populate \
   -H "Content-Type: application/json" \
   -d "{}"
 ```
@@ -383,7 +383,7 @@ curl -X POST http://localhost:8000/populate \
 
 ### 7.2 Test XSS manuel
 
-1. Aller sur [http://localhost:3000](http://localhost:3000)
+1. Aller sur [http://localhost:<FRONTEND_PORT>](http://localhost:<FRONTEND_PORT>>)
 2. Poster un commentaire :
 
    ```html
@@ -426,6 +426,79 @@ Name : Ceyhan G&uuml;m&uuml;&scedil;pala
 ➔ **La sécurité est priorisée sur l’affichage esthétique**
 
 ---
+
+## 9. Vérification de la vulnérabilité React2Shell
+
+Dans le cadre de notre projet, nous avons testé si notre application frontend était vulnérable à la vulnérabilité critique **React2Shell**.
+
+- Scanner utilisé : [assetnote/react2shell-scanner](https://github.com/assetnote/react2shell-scanner)  
+- Documentation suivie : [IT-Connect – React2Shell : comment vérifier si votre application web est vulnérable](https://www.it-connect.fr/react2shell-comment-verifier-si-votre-application-web-est-vulnerable/)
+
+#### 9.1. Vérification du fonctionnement normal du serveur (port <FRONTEND_PORT>)
+
+Fonctionnement normal
+
+```bash
+# On interroge le frontend avec curl
+$ curl -X GET http://localhost:<FRONTEND_PORT>/ -I  
+                
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: *
+Access-Control-Allow-Headers: *
+Content-Type: text/html; charset=utf-8
+Accept-Ranges: bytes
+Content-Length: 1711
+ETag: W/"6af-+M4OSPFNZpwKBdFEydrj+1+V5xo"
+Vary: Accept-Encoding
+Date: Sat, 13 Dec 2025 14:54:43 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+```
+
+#### 9.2. Lancement du scanner React2Shell
+
+```bash
+# Exécution du scanner sur l’URL du frontend
+$ python3 scanner.py -u http://localhost:<FRONTEND_PORT>/ -v    
+
+brought to you by assetnote
+
+[*] Loaded 1 host(s) to scan
+[*] Using 10 thread(s)
+[*] Timeout: 10s
+[*] Using RCE PoC check
+[!] SSL verification disabled
+
+[NOT VULNERABLE] http://localhost:<FRONTEND_PORT>/ - Status: 404
+  Response snippet:
+    HTTP/1.1 404 Not Found
+    X-Powered-By: Express
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Methods: *
+    Access-Control-Allow-Headers: *
+    Content-Security-Policy: default-src 'none'
+    X-Content-Type-Options: nosniff
+    Content-Type: text/html; charset=utf-8
+    Content-Length: 140
+    Vary: Accept-Encoding
+
+============================================================
+SCAN SUMMARY
+============================================================
+  Total hosts scanned: 1
+  Vulnerable: 0
+  Not vulnerable: 1
+  Errors: 0
+============================================================
+
+```
+
+Notre application **frontend n’est pas vulnérable** à la vulnérabilité React2Shell selon ce scanner.
+
+---
+
 
 ## 9. Limites connues et pistes d’amélioration
 
