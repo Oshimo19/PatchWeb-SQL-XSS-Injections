@@ -142,6 +142,8 @@ Pour atteindre les objectifs de sécurité et de robustesse, plusieurs améliora
 
 </div>
 
+**Note :** La vitesse d’exécution lors du démarrage a légèrement augmenté, d’environ une minute, car l’application effectue désormais davantage de vérifications de sécurité, comme la validation des données d'entée et l’utilisation de l’ORM. Ces étapes supplémentaires prennent un peu plus de temps, mais l’impact reste raisonnable et n’affecte pas l’utilisation normale de l’application. Ce léger coût est compensé par une organisation du code plus claire et une sécurité renforcée, sans dégrader l’expérience utilisateur.
+
 ---
 
 ## 3. Architecture
